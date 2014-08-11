@@ -1,0 +1,5 @@
+build/
+*.so
+*.a
+fab_test
+
