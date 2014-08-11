@@ -5,6 +5,39 @@ See LICENCE.txt for licensing information (TL;DR: MIT-style).
 
 #include "common.h"
 
+void fab_blit_aligned_unclipped_4_to_16(void *dest, void *src, uint32_t *pal32, int dpitch, int spitch, int dx, int dy, int sx, int sy, int w, int h)
+{
+	int x, y;
+
+	/* Assert stuff */
+	assert((spitch&7) == 0);
+	assert((dpitch&1) == 0);
+	assert((sx&7) == 0);
+	assert((w&7) == 0);
+	assert(sx+w <= spitch);
+	assert(dx+w <= dpitch);
+
+	/* Calculate stuff */
+	uint32_t *dp = (dest + (dx<<1) + ((dy*dpitch)<<1));
+	uint32_t *sp = (src  + (sx>>1) + ((sy*spitch)>>1));
+
+	/* Loop */
+	for(y = 0; y < h; y++)
+	{
+		for(x = 0; x < (w>>2); x++)
+		{
+			uint32_t s = sp[x];
+			dp[(x<<2)+0] = pal32[((s>> 0)&0xFF)];
+			dp[(x<<2)+1] = pal32[((s>> 8)&0xFF)];
+			dp[(x<<2)+2] = pal32[((s>>16)&0xFF)];
+			dp[(x<<2)+3] = pal32[((s>>24)&0xFF)];
+		}
+
+		dp += dpitch>>1;
+		sp += spitch>>3;
+	}
+}
+
 void fab_blit_aligned_unclipped_4_to_32(void *dest, void *src, uint32_t *pal64, int dpitch, int spitch, int dx, int dy, int sx, int sy, int w, int h)
 {
 	int x, y;

@@ -24,3 +24,33 @@ void fab_convert_pal_4bppbot_16_to_16bppbot_32(uint32_t *dest, uint16_t *src)
 		dest[i] = ((uint32_t)src[i&15]) | (((uint32_t)src[i>>4]) << 16);
 }
 
+void fab_convert_pal_4bppbot_32_xrgb_to_4bppbot_16_rgb(uint16_t *dest, uint32_t *src)
+{
+	int i;
+	uint32_t r,g,b;
+
+	for(i = 0; i < 16; i++)
+	{
+		uint32_t v = src[i];
+
+		r = (v>>16) & 0xFF;
+		g = (v>> 8) & 0xFF;
+		b = (v>> 0) & 0xFF;
+
+		r += 4;
+		g += 2;
+		b += 4;
+
+		if(r > 0xFF) r = 0xFF;
+		if(g > 0xFF) g = 0xFF;
+		if(b > 0xFF) b = 0xFF;
+
+		r >>= 3;
+		g >>= 2;
+		b >>= 3;
+
+		dest[i] = (r<<11) | (g<<5) | b;
+	}
+
+}
+

@@ -15,6 +15,8 @@ See LICENCE.txt for licensing information (TL;DR: MIT-style).
 #include "fastblit.h"
 
 uint32_t palbase[16];
+uint16_t palbase_16[16];
+uint32_t palbase_16bppbot_32[256];
 uint32_t palbase_32bpp_64[256*2];
 uint32_t shots1[2*128*128];
 uint32_t shots1_expanded[8][2*128*(128+8)];
@@ -40,12 +42,16 @@ int main(int argc, char *argv[])
 	fab_expand_surf_4mask_8x(shots1_expanded_ptrs, shots1, 128, 128, 128);
 
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE);
-	SDL_Surface *screen = SDL_SetVideoMode(640, 480, 32, 0);
+	SDL_Surface *screen = SDL_SetVideoMode(640, 480, 16, 0);
 
 #ifndef WIN32
 	signal(SIGTERM, SIG_DFL);
 	signal(SIGINT,  SIG_DFL);
 #endif
+
+	//fab_convert_pal_4bppbot_32_to_32bpp_64(palbase_32bpp_64, palbase);
+	fab_convert_pal_4bppbot_32_xrgb_to_4bppbot_16_rgb(palbase_16, palbase);
+	fab_convert_pal_4bppbot_16_to_16bppbot_32(palbase_16bppbot_32, palbase_16);
 
 	for(i = 0; i < 100; i++)
 	{
@@ -55,10 +61,9 @@ int main(int argc, char *argv[])
 			i, 0, 0, 0,
 			128, 128);
 
-		fab_convert_pal_4bppbot_32_to_32bpp_64(palbase_32bpp_64, palbase);
 		SDL_LockSurface(screen);
-		fab_blit_aligned_unclipped_4_to_32(screen->pixels, surf4, palbase_32bpp_64,
-			screen->pitch/4, 640,
+		fab_blit_aligned_unclipped_4_to_16(screen->pixels, surf4, palbase_16bppbot_32,
+			screen->pitch/2, 640,
 			0, 0, 0, 0,
 			640, 480);
 		SDL_UnlockSurface(screen);
